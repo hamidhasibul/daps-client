@@ -1,6 +1,5 @@
 import { FC } from "react";
 import { useForm } from "react-hook-form";
-import AuthCard from "./auth-card";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -14,24 +13,56 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
-type SignInFormValues = z.infer<typeof formSchema>;
+import AuthCard from "./auth-card";
+import { useMutation } from "@tanstack/react-query";
+import { loginUserFn } from "@/api/auth-api";
+import useStore from "@/store";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import axios from "axios";
+
+export type SignInFormValues = z.infer<typeof formSchema>;
 
 const formSchema = z.object({
-  username: z.string().min(1, { message: "Please enter a username" }),
+  phone: z.string().min(1, { message: "Please enter a phone" }),
   password: z.string().min(1, { message: "Please enter password" }),
 });
 
 const SigninCard: FC = () => {
+  const { setAccessToken } = useStore();
+  const navigate = useNavigate();
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      username: "",
+      phone: "",
       password: "",
     },
   });
 
+  const { mutate, isPending } = useMutation({
+    mutationFn: (data: SignInFormValues) => loginUserFn(data),
+    onSuccess: (data) => {
+      toast.success("Logged in succesfully");
+      const { accessToken } = data;
+      setAccessToken(accessToken);
+      navigate("/");
+    },
+    onError: (error) => {
+      if (axios.isAxiosError(error) && error.response) {
+        toast.error("Login failed", {
+          description: error.response.data.message,
+        });
+      } else {
+        toast.error("Oops!", {
+          description: "An unexpected error occurred. Please try again.",
+        });
+      }
+    },
+  });
+
   function onSubmit(data: SignInFormValues) {
-    console.log(data);
+    mutate(data);
   }
 
   return (
@@ -40,12 +71,12 @@ const SigninCard: FC = () => {
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField
             control={form.control}
-            name="username"
+            name="phone"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Username</FormLabel>
+                <FormLabel>Phone</FormLabel>
                 <FormControl>
-                  <Input {...field} />
+                  <Input {...field} autoComplete="tel" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -58,7 +89,11 @@ const SigninCard: FC = () => {
               <FormItem>
                 <FormLabel>Password</FormLabel>
                 <FormControl>
-                  <Input type="password" {...field} />
+                  <Input
+                    type="password"
+                    {...field}
+                    autoComplete="current-password"
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -68,6 +103,7 @@ const SigninCard: FC = () => {
           <Button
             className="w-full bg-keppel-500 hover:bg-keppel-600 active:bg-keppel-700"
             type="submit"
+            disabled={isPending}
           >
             Sign in
           </Button>
