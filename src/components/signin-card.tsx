@@ -29,7 +29,7 @@ const formSchema = z.object({
 });
 
 const SigninCard: FC = () => {
-  const { setAccessToken } = useStore();
+  const { setAccessToken, setUser } = useStore();
   const navigate = useNavigate();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -44,8 +44,9 @@ const SigninCard: FC = () => {
     mutationFn: (data: SignInFormValues) => loginUserFn(data),
     onSuccess: (data) => {
       toast.success("Logged in succesfully");
-      const { accessToken } = data;
+      const { accessToken, user } = data;
       setAccessToken(accessToken);
+      setUser(user);
       navigate("/");
     },
     onError: (error) => {
