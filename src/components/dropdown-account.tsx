@@ -7,8 +7,9 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
+} from "@/components/ui/dropdown-menu";
 import { LogOut, UserRoundCog } from "lucide-react";
+import { Link } from "react-router-dom";
 
 interface Props {
   user: User;
@@ -27,10 +28,12 @@ function DropdownProfile({ user }: Props) {
       <DropdownMenuContent className="mr-2">
         <DropdownMenuLabel>{user.name}</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
-          <UserRoundCog className="mr-2 h-4 w-4" />
-          <span>Profile</span>
-        </DropdownMenuItem>
+        <Link to={"/settings"}>
+          <DropdownMenuItem className="cursor-pointer">
+            <UserRoundCog className="mr-2 h-4 w-4" />
+            <span>Settings</span>
+          </DropdownMenuItem>
+        </Link>
         <DropdownMenuSeparator />
         <DropdownMenuItem>
           <LogOut className="mr-2 h-4 w-4" />

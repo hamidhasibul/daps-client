@@ -1,9 +1,7 @@
 import logo from "@/assets/daps-logo-placeholder.svg";
 import SigninCard from "@/components/signin-card";
 
-interface Props {}
-
-const SignInPage = (props: Props) => {
+const SignInPage = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-keppel-200 to-keppel-500 ">
       <div className="flex w-2/3 border bg-white rounded-lg p-4 shadow-lg">
