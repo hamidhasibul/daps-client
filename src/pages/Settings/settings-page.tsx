@@ -1,11 +1,33 @@
+import { useState } from "react";
 import FormHeading from "@/components/form-heading";
 import PageHeading from "@/components/page-heading";
+import { Button } from "@/components/ui/button";
+import AlertModal from "@/components/modals/alert-modal";
 import AccountInfoForm from "./components/account-info-form";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import EditImageCard from "./components/edit-image-card";
+import ChangePassModal from "./components/change-pass-modal";
 
 const SettingsPage = () => {
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [isAlertOpen, setIsAlertOpen] = useState<boolean>(false);
+  const onOpen = () => {
+    setIsOpen(true);
+  };
+  const onClose = () => {
+    setIsOpen(false);
+  };
   return (
     <main>
+      <AlertModal
+        isOpen={isAlertOpen}
+        onClose={() => {
+          setIsAlertOpen(false);
+        }}
+        loading={false}
+        onConfirm={() => {}}
+      />
+      <ChangePassModal isOpen={isOpen} onClose={onClose} />
+
       <div className="max-w-screen-2xl p-4 md:p-10">
         <PageHeading title="Settings" />
         <div className="flex justify-between gap-10">
@@ -19,25 +41,21 @@ const SettingsPage = () => {
             </div>
           </div>
           <div className="w-1/3">
-            <div className="bg-keppel-100 rounded-md">
-              <FormHeading title="Photo" />
-              <div className="p-4">
-                {/* Content */}
+            <div className="flex flex-col space-y-3">
+              <EditImageCard />
 
-                <div className="mb-4 flex items-center gap-3">
-                  <Avatar>
-                    <AvatarImage
-                      src="https://github.com/shadcn.png"
-                      alt="@shadcn"
-                    />
-                    <AvatarFallback>CN</AvatarFallback>
-                  </Avatar>
-                  <div className="flex flex-col">
-                    <span className="font-medium text-sm">Edit your photo</span>
-                    <span className="text-xs font-medium text-red-500 cursor-pointer">
-                      Delete
-                    </span>
-                  </div>
+              {/* Change Password */}
+
+              {/* TODO : Change password form*/}
+              <div className="bg-keppel-100 rounded-md ">
+                <div className="p-4">
+                  <Button
+                    size={"sm"}
+                    onClick={onOpen}
+                    className="w-full bg-keppel-600 hover:bg-keppel-700 active:bg-keppel-800 "
+                  >
+                    Change password
+                  </Button>
                 </div>
               </div>
             </div>

@@ -1,3 +1,6 @@
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -8,9 +11,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
 
 export type AccountInfoValues = z.infer<typeof formSchema>;
 
@@ -24,6 +24,15 @@ const formSchema = z.object({
 const AccountInfoForm = () => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
+
+    // TODO : default values to be changed
+
+    defaultValues: {
+      name: "",
+      phone: "",
+      email: "",
+      role: "USER", // or 'ADMIN' based on your requirement
+    },
   });
 
   function onSubmit(data: AccountInfoValues) {
@@ -41,7 +50,7 @@ const AccountInfoForm = () => {
                 <FormItem>
                   <FormLabel>Full Name</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input {...field} type="text" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -54,7 +63,7 @@ const AccountInfoForm = () => {
                 <FormItem>
                   <FormLabel>Phone Number</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input {...field} type="text" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -68,7 +77,7 @@ const AccountInfoForm = () => {
               <FormItem>
                 <FormLabel>Email</FormLabel>
                 <FormControl>
-                  <Input {...field} />
+                  <Input {...field} type="email" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -82,7 +91,7 @@ const AccountInfoForm = () => {
               <FormItem>
                 <FormLabel>Role</FormLabel>
                 <FormControl>
-                  <Input {...field} disabled />
+                  <Input {...field} type="text" disabled />
                 </FormControl>
                 <FormMessage />
               </FormItem>
