@@ -1,3 +1,4 @@
+import { changePassFn } from "@/api/me-api";
 import Modal from "@/components/modal";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,7 +11,10 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
+import { isAxiosError } from "axios";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 
 type Props = {
@@ -33,10 +37,30 @@ const formSchema = z
     message: "Passwords do not match",
   });
 
-export type changePasswordValues = z.infer<typeof formSchema>;
+export type ChangePasswordValues = z.infer<typeof formSchema>;
 
 function ChangePassModal({ isOpen, onClose }: Props) {
-  const form = useForm<changePasswordValues>({
+  const { mutate, isPending } = useMutation({
+    mutationFn: (data: ChangePasswordValues) => changePassFn(data),
+    onSuccess: () => {
+      onClose();
+      form.reset();
+      toast.success("Password changed successfully");
+    },
+    onError: (error) => {
+      if (isAxiosError(error) && error.response) {
+        toast.error("Password change failed", {
+          description: error.response.data.message,
+        });
+      } else {
+        toast.error("Oops!", {
+          description: "An unexpected error occurred. Please try again.",
+        });
+      }
+    },
+  });
+
+  const form = useForm<ChangePasswordValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       currentPassword: "",
@@ -45,8 +69,8 @@ function ChangePassModal({ isOpen, onClose }: Props) {
     },
   });
 
-  function onSubmit(data: changePasswordValues) {
-    console.log(data);
+  function onSubmit(data: ChangePasswordValues) {
+    mutate(data);
   }
   return (
     <Modal
@@ -103,6 +127,7 @@ function ChangePassModal({ isOpen, onClose }: Props) {
             <Button
               className="bg-keppel-600 hover:bg-keppel-700 active:bg-keppel-800"
               type="submit"
+              disabled={isPending}
             >
               Confirm
             </Button>
