@@ -7,15 +7,21 @@ import AccountInfoForm from "./components/account-info-form";
 import EditImageCard from "./components/edit-image-card";
 import ChangePassModal from "./components/change-pass-modal";
 
+import { useProfile } from "@/services/queries/me";
+
 const SettingsPage = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [isAlertOpen, setIsAlertOpen] = useState<boolean>(false);
+
+  const { data: profileData, isPending, isError } = useProfile();
+
   const onOpen = () => {
     setIsOpen(true);
   };
   const onClose = () => {
     setIsOpen(false);
   };
+
   return (
     <main>
       <AlertModal
@@ -36,7 +42,9 @@ const SettingsPage = () => {
               <FormHeading title="Account Information" />
               <div className="p-4">
                 {/* Account Info Form */}
-                <AccountInfoForm />
+                {isPending && <>Loading...</>}
+                {isError && <>Error loading data...</>}
+                {profileData && <AccountInfoForm data={profileData} />}
               </div>
             </div>
           </div>
@@ -46,7 +54,6 @@ const SettingsPage = () => {
 
               {/* Change Password */}
 
-              {/* TODO : Change password form*/}
               <div className="bg-keppel-100 rounded-md ">
                 <div className="p-4">
                   <Button

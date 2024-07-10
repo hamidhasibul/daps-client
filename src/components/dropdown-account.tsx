@@ -8,15 +8,27 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LogOut, UserRoundCog } from "lucide-react";
+import { Loader, LogOut, UserRoundCog } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useLogout } from "@/services/mutations/auth";
 
 interface Props {
   user: User;
+  isPending: boolean;
 }
 
-function DropdownProfile({ user }: Props) {
+function DropdownProfile({ user, isPending }: Props) {
+  const { mutate: logout } = useLogout();
+
+  if (isPending) {
+    return <Loader className="animate-spin" />;
+  }
+
   const initials = `${user.name.split(" ")[0][0]}${user.name.split(" ")[1][0]}`;
+
+  function onLogout() {
+    logout();
+  }
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild className="cursor-pointer">
@@ -35,7 +47,7 @@ function DropdownProfile({ user }: Props) {
           </DropdownMenuItem>
         </Link>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
+        <DropdownMenuItem className="cursor-pointer" onClick={onLogout}>
           <LogOut className="mr-2 h-4 w-4" />
           <span>Logout</span>
         </DropdownMenuItem>

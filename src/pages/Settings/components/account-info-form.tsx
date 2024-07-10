@@ -11,6 +11,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Profile } from "@/types/queries";
+import { useUpdateProfile } from "@/services/mutations/me";
 
 export type AccountInfoValues = z.infer<typeof formSchema>;
 
@@ -21,23 +23,25 @@ const formSchema = z.object({
   role: z.enum(["USER", "ADMIN"]),
 });
 
-const AccountInfoForm = () => {
+type Props = {
+  data: Profile;
+};
+
+const AccountInfoForm = ({ data }: Props) => {
+  const { mutate, isPending } = useUpdateProfile();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-
-    // TODO : default values to be changed
-
     defaultValues: {
-      name: "",
-      phone: "",
-      email: "",
-      role: "USER", // or 'ADMIN' based on your requirement
+      name: data.name,
+      email: data.email,
+      phone: data.phone,
+      role: data.role,
     },
   });
-
   function onSubmit(data: AccountInfoValues) {
-    console.log(data);
+    mutate(data);
   }
+
   return (
     <>
       <Form {...form}>
@@ -102,6 +106,7 @@ const AccountInfoForm = () => {
             <Button
               className="bg-keppel-600 hover:bg-keppel-700 active:bg-keppel-800"
               type="submit"
+              disabled={isPending}
             >
               Update
             </Button>

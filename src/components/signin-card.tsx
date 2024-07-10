@@ -45,6 +45,7 @@ const SigninCard: FC = () => {
     onSuccess: (data) => {
       toast.success("Logged in succesfully");
       const { accessToken, user } = data;
+      localStorage.setItem("accessToken", accessToken);
       setAccessToken(accessToken);
       setUser(user);
       navigate("/");
