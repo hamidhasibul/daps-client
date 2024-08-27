@@ -4,6 +4,7 @@ import {
   Github,
   Home,
   Instagram,
+  Layers,
   Linkedin,
   Stethoscope,
 } from "lucide-react";
@@ -13,6 +14,11 @@ import { Separator } from "@/components/ui/separator";
 
 const routes = [
   { label: "Dashboard", path: "/", icon: <Home className="h-4 w-4" /> },
+  {
+    label: "Departments",
+    path: "/departments",
+    icon: <Layers className="h-4 w-4" />,
+  },
   {
     label: "Doctors",
     path: "/doctors",
@@ -27,7 +33,7 @@ const routes = [
 
 interface Props {}
 
-const Sidebar = (props: Props) => {
+const Sidebar = ({}: Props) => {
   return (
     <aside className="fixed top-0 left-0 z-40 pt-20 h-screen w-80 bg-keppel-800">
       <div className="h-full overflow-y-auto px-3 py-4 space-y-10">
