@@ -6,7 +6,7 @@ import { toast } from "sonner";
 export const useLogout = () => {
   const navigate = useNavigate();
   return useMutation({
-    mutationFn: () => logOut(),
+    mutationFn: logOut,
     onSuccess: () => {
       localStorage.removeItem("accessToken");
       toast.success("Logged out successfully");

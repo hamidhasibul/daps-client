@@ -6,8 +6,7 @@ import { useProfile } from "@/services/queries/me";
 
 interface Props {}
 
-const Navbar = (props: Props) => {
-  // const { user } = useStore();
+const Navbar = ({}: Props) => {
   const { data: user, isPending } = useProfile();
 
   return (
