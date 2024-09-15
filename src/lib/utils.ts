@@ -12,3 +12,41 @@ export const axiosIns = axios.create({
 });
 
 axiosIns.defaults.headers.common["Content-Type"] = "application/json";
+
+axiosIns.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("accessToken");
+    if (token && config.headers) {
+      config.headers["Authorization"] = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+axiosIns.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+
+    if (error.response.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+
+      try {
+        const { data } = await axiosIns.get("/refresh");
+
+        localStorage.setItem("accessToken", data.accessToken);
+        originalRequest.headers["Authorization"] = `Bearer ${data.accessToken}`;
+
+        return axiosIns(originalRequest);
+      } catch (refreshError) {
+        localStorage.removeItem("accessToken");
+        window.location.href = "/login";
+      }
+    }
+
+    return Promise.reject(error);
+  }
+);
