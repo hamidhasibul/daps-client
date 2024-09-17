@@ -24,7 +24,7 @@ function SideModal({ title, description, children, isOpen, onClose }: Props) {
   return (
     <>
       <Sheet open={isOpen} onOpenChange={onChange}>
-        <SheetContent className="sm:max-w-xl">
+        <SheetContent className="">
           <SheetHeader>
             <SheetTitle>{title}</SheetTitle>
             <SheetDescription>{description}</SheetDescription>
