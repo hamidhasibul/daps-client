@@ -32,11 +32,13 @@ export const columns: ColumnDef<DepartmentCol>[] = [
   },
   {
     accessorKey: "status",
+
     header: () => <div className="text-center">Status</div>,
     cell: ({ row }) => <div className="text-center">{row.original.active}</div>,
   },
   {
     accessorKey: "actions",
+
     header: () => <div className="text-center">Actions</div>,
     id: "actions",
     cell: ({ row }) => {
