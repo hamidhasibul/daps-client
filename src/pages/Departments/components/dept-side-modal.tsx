@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { useCreateDept } from "@/services/mutations/departments";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -32,7 +33,7 @@ const imageSchema = z
   .optional()
   .refine(
     (file) =>
-      file.length == 1
+      file?.length == 1
         ? ACCEPTED_IMAGE_TYPES.includes(file?.[0]?.type)
           ? true
           : false
@@ -41,7 +42,11 @@ const imageSchema = z
   )
   .refine(
     (file) =>
-      file.length == 1 ? (file[0]?.size <= MAX_FILE_SIZE ? true : false) : true,
+      file?.length == 1
+        ? file[0]?.size <= MAX_FILE_SIZE
+          ? true
+          : false
+        : true,
     "Max file size allowed is 8MB."
   );
 
@@ -54,17 +59,19 @@ const formSchema = z.object({
 export type AddDeptValues = z.infer<typeof formSchema>;
 
 export default function DepartmentSideModal({ isOpen, onClose }: Props) {
+  const { mutate, isPending } = useCreateDept();
   const form = useForm<AddDeptValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
       description: "",
-      image: "",
+      image: undefined,
     },
   });
 
   function onSubmit(data: AddDeptValues) {
-    console.log(data);
+    mutate(data);
+    form.reset();
   }
   return (
     <>
@@ -76,7 +83,6 @@ export default function DepartmentSideModal({ isOpen, onClose }: Props) {
       >
         <Form {...form}>
           <form
-            action=""
             onSubmit={form.handleSubmit(onSubmit)}
             className="space-y-4 my-10"
           >
@@ -121,7 +127,11 @@ export default function DepartmentSideModal({ isOpen, onClose }: Props) {
                 <FormItem>
                   <FormLabel>Image</FormLabel>
                   <FormControl>
-                    <Input {...field} type="file" />
+                    <Input
+                      accept={ACCEPTED_IMAGE_TYPES.join(",")}
+                      type="file"
+                      onChange={(e) => field.onChange(e.target.files?.[0])}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -132,6 +142,7 @@ export default function DepartmentSideModal({ isOpen, onClose }: Props) {
               <Button
                 className="bg-keppel-600 hover:bg-keppel-700 active:bg-keppel-800 w-full"
                 type="submit"
+                disabled={isPending}
               >
                 Create
               </Button>
