@@ -1,6 +1,6 @@
 interface Props {}
 
-const RegisterPage = (props: Props) => {
+const RegisterPage = ({}: Props) => {
   return <div>RegisterPage</div>;
 };
 
