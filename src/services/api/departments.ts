@@ -1,15 +1,20 @@
 import { axiosIns } from "@/lib/utils";
 import { AddDeptValues } from "@/pages/Departments/components/dept-side-modal";
+import { GetDepartmentsResponse } from "@/types/queries";
 
 export const getDepartments = async ({
   pageIndex,
   pageSize,
 }: {
-  pageIndex: number;
-  pageSize: number;
-}) => {
+  pageIndex?: number;
+  pageSize?: number;
+}): Promise<GetDepartmentsResponse> => {
   return (
-    await axiosIns.get(`/departments?page=${pageIndex + 1}&limit=${pageSize}`)
+    await axiosIns.get(
+      `/departments?page=${
+        pageIndex !== undefined ? pageIndex + 1 : ""
+      }&limit=${pageSize ? pageSize : ""}`
+    )
   ).data;
 };
 
