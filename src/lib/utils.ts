@@ -31,19 +31,30 @@ axiosIns.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    if (error.response.status === 401 && !originalRequest._retry) {
+    if (
+      error.response &&
+      (error.response.status === 401 || error.response.status === 403) &&
+      !originalRequest._retry
+    ) {
       originalRequest._retry = true;
 
       try {
-        const { data } = await axiosIns.get("/refresh");
+        const response = await axios.get("/refresh", {
+          baseURL: import.meta.env.VITE_BASE_URL,
+          withCredentials: true,
+        });
 
-        localStorage.setItem("accessToken", data.accessToken);
-        originalRequest.headers["Authorization"] = `Bearer ${data.accessToken}`;
-
-        return axiosIns(originalRequest);
+        if (response.data.accessToken) {
+          localStorage.setItem("accessToken", response.data.accessToken);
+          axiosIns.defaults.headers.common[
+            "Authorization"
+          ] = `Bearer ${response.data.accessToken}`;
+          return axiosIns(originalRequest);
+        }
       } catch (refreshError) {
         localStorage.removeItem("accessToken");
         window.location.href = "/login";
+        return Promise.reject(refreshError);
       }
     }
 
