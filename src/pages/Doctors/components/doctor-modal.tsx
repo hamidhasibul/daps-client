@@ -23,10 +23,19 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { ACCEPTED_IMAGE_MIME_TYPES, daysOfWeek } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { useDepartments } from "@/services/queries/departments";
+import {
+  accountDefValues,
+  accountSchema,
+  profileDefValues,
+  profileSchema,
+  scheduleDefValues,
+  scheduleSchema,
+} from "@/types/schemas/add-doctor";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CheckIcon } from "lucide-react";
 import { useState } from "react";
@@ -37,77 +46,11 @@ import { z } from "zod";
 
 type Props = { isOpen: boolean; onClose: () => void };
 
-const accountSchema = z
-  .object({
-    firstName: z.string().min(1, { message: "Enter First Name" }),
-    lastName: z.string().min(1, { message: "Enter Last Name" }),
-    email: z.string().email({ message: "Enter valid email" }),
-    phone: z.string().optional(),
-    profilePicture: z
-      .any()
-      .optional()
-      .refine(
-        (file: File) => ACCEPTED_IMAGE_MIME_TYPES.includes(file.type),
-        "Only .jpg, .jpeg, .png and .webp formats are supported."
-      ),
-    departmentId: z.string({ message: "Choose a Department" }),
-    password: z
-      .string()
-      .min(6, { message: "Password must be at least 6 characters" }),
-    confirmPassword: z
-      .string()
-      .min(6, { message: "Password must be at least 6 characters" }),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    path: ["confirmPassword"],
-    message: "Passwords do not match",
-  });
-
-const profileSchema = z.object({
-  specialization: z
-    .string()
-    .min(1, { message: "Enter valid specialization" })
-    .optional(),
-  qualification: z
-    .string()
-    .min(1, { message: "Enter valid qualification" })
-    .optional(),
-  appointmentDuration: z.number({
-    message: "Enter Minimum Appointment Duration (mins)",
-  }),
-});
-
-const scheduleSchema = z.object({
-  startTime: z.string(),
-  endTime: z.string(),
-  daysOfWeek: z
-    .enum(daysOfWeek)
-    .array()
-    .nonempty("At least one day should be selected"),
-});
-
 const formSchema = z.object({
   account: accountSchema,
   profile: profileSchema,
   schedule: scheduleSchema,
 });
-
-const scheduleDefValues = {
-  startTime: "",
-  endTime: "",
-  daysOdWeek: [],
-};
-
-const accountDefValues = {
-  firstName: "",
-  lastName: "",
-  email: "",
-  profilePicture: undefined,
-  phone: "",
-  departmentId: "",
-  password: "",
-  confirmPassword: "",
-};
 
 export type AddDoctorValues = z.infer<typeof formSchema>;
 
@@ -119,9 +62,16 @@ export default function DoctorModal({ isOpen, onClose }: Props) {
     resolver: zodResolver(formSchema),
     defaultValues: {
       account: accountDefValues,
+      profile: profileDefValues,
       schedule: scheduleDefValues,
     },
   });
+
+  const { errors } = form.formState;
+
+  const hasErrorsInTab = (tabName: "account" | "profile" | "schedule") => {
+    return Object.keys(errors).some((key) => key.startsWith(tabName));
+  };
 
   const filteredDepartments = data?.departments.filter((department) =>
     department.name.toLowerCase().includes(search.toLowerCase().trim())
@@ -142,9 +92,30 @@ export default function DoctorModal({ isOpen, onClose }: Props) {
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <Tabs defaultValue="account" className="w-full">
             <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="account">Account</TabsTrigger>
-              <TabsTrigger value="profile">Profile</TabsTrigger>
-              <TabsTrigger value="schedule">Schedule</TabsTrigger>
+              <TabsTrigger
+                value="account"
+                className={cn(
+                  hasErrorsInTab("account") && "text-red-500 border-red-500"
+                )}
+              >
+                Account
+              </TabsTrigger>
+              <TabsTrigger
+                value="profile"
+                className={cn(
+                  hasErrorsInTab("profile") && "text-red-500 border-red-500"
+                )}
+              >
+                Profile
+              </TabsTrigger>
+              <TabsTrigger
+                value="schedule"
+                className={cn(
+                  hasErrorsInTab("schedule") && "text-red-500 border-red-500"
+                )}
+              >
+                Schedule
+              </TabsTrigger>
             </TabsList>
 
             {/* Account Tab Content */}
@@ -247,10 +218,10 @@ export default function DoctorModal({ isOpen, onClose }: Props) {
                                 >
                                   {field.value
                                     ? data?.departments.find(
-                                        (language) =>
-                                          language.id === field.value
+                                        (department) =>
+                                          department.id === field.value
                                       )?.name
-                                    : "Select language"}
+                                    : "Select Department"}
                                 </Button>
                               </FormControl>
                             </PopoverTrigger>
@@ -334,7 +305,60 @@ export default function DoctorModal({ isOpen, onClose }: Props) {
 
             {/* Profile Tab Content */}
             <TabsContent value="profile" className="space-y-2">
-              Change your Profile here.
+              <FormField
+                name="profile.specialization"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Specialization</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Describe doctor's specialization"
+                        className="resize-none"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                name="profile.qualification"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Qualifications</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Describe doctor's Qualifications"
+                        className="resize-none"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                name="profile.appointmentDuration"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Appointment Duration (Minutes)</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        type="number"
+                        onChange={(e) =>
+                          field.onChange(parseInt(e.target.value, 10))
+                        }
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </TabsContent>
 
             {/* Schedule Tab Content */}
