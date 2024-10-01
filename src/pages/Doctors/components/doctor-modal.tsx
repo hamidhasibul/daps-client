@@ -27,6 +27,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { ACCEPTED_IMAGE_MIME_TYPES, daysOfWeek } from "@/lib/constants";
 import { cn } from "@/lib/utils";
+import { useCreateDoc } from "@/services/mutations/doctors";
 import { useDepartments } from "@/services/queries/departments";
 import {
   accountDefValues,
@@ -57,6 +58,7 @@ export type AddDoctorValues = z.infer<typeof formSchema>;
 export default function DoctorModal({ isOpen, onClose }: Props) {
   const { data } = useDepartments();
   const [search, setSearch] = useState("");
+  const { mutate, isPending } = useCreateDoc();
 
   const form = useForm<AddDoctorValues>({
     resolver: zodResolver(formSchema),
@@ -78,7 +80,16 @@ export default function DoctorModal({ isOpen, onClose }: Props) {
   );
 
   function onSubmit(data: AddDoctorValues) {
-    console.log(data);
+    const formData = new FormData();
+    formData.append("data", JSON.stringify(data));
+
+    if (data.account.profilePicture) {
+      formData.append("profilePicture", data.account.profilePicture);
+    }
+
+    mutate(formData as unknown as AddDoctorValues);
+
+    form.reset();
   }
 
   return (
@@ -423,7 +434,9 @@ export default function DoctorModal({ isOpen, onClose }: Props) {
                 )}
               />
 
-              <Button type="submit">Submit</Button>
+              <Button type="submit" disabled={isPending}>
+                Submit
+              </Button>
             </TabsContent>
           </Tabs>
         </form>
