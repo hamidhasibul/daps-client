@@ -9,6 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Department } from "@/types/queries";
 
 export type DepartmentCol = {
   id: string;
@@ -17,7 +18,7 @@ export type DepartmentCol = {
   active: boolean;
 };
 
-export const columns: ColumnDef<DepartmentCol>[] = [
+export const columns: ColumnDef<Department>[] = [
   {
     accessorKey: "name",
     header: () => <div className="text-center">Name</div>,

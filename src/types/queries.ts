@@ -5,3 +5,18 @@ export interface Profile {
   image?: string | null;
   role: "ADMIN" | "USER";
 }
+
+export type Department = {
+  id: string;
+  name: string;
+  description?: string;
+  image?: string;
+  active: boolean;
+  createdAt: string;
+};
+
+export type GetDepartmentsResponse = {
+  success: boolean;
+  departments: Department[];
+  count: number;
+};
